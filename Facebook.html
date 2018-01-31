@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" ng-app = "myModule">
+   <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-animate.js"></script>
+      <link rel="stylesheet" type = "text/css" href="page2.css">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <script src="http://connect.facebook.net/en_US/sdk.js"></script>
+      <script src = "page3.js"></script>
+   </head>
+   <body ng-controller = "myController">
+      <div class = "container-fluid">
+      <div id = completeForm >
+         <div class="row">
+            <form class="navbar-form" role="search">
+               <div class="col-lg-2 col-md-2 col-xs-push-1 col-xs-12">
+                  <p class="input" id = "enterText">FB Search</p>
+               </div>
+
+               <div class="col-lg-6 col-md-6 col-xs-push-1 col-xs-8">
+                  <input class="form-control col-xs-6" id = "changeCorner" type="text" ng-model="fetchData"  placeholder = "type something.." style = "width:80%">
+                  <button id = searchButton class="btn btn-primary col-xs-2" type="button" ng-click = findUsers()>
+                  <i class="glyphicon glyphicon-search" id = " "></i>
+                  </button>
+               </div>
+
+               <input class="btn btn-primary " id = "ClearButton" type="reset" value="Clear" ng-click = pressClear() style="margin-left: 7%;">
+            </form>
+         </div>
+      </div>
+      <ul class = "nav nav-tabs nav-justified removeColor">
+         <li id="tabone" class = "col-xs-12 removePadding active"><a href = "#Users" data-toggle ="tab" ng-click = findUsers()>Users</a></li>
+         <li class = "col-xs-12 removePadding"><a href = "#Users" data-toggle="tab" ng-click = findPages()>Pages</a></li>
+         <li class = "col-xs-12 removePadding"><a href = "#Users" data-toggle = "tab" ng-click = findEvents()>Events</a></li>
+         <li class = "col-xs-12 removePadding"><a href = "#Users" data-toggle = "tab" ng-click = findPlaces()>Places</a></li>
+         <li class = "col-xs-12 removePadding"><a href = "#Users" data-toggle = "tab" ng-click = findGroups()>Groups</a></li>
+         <li class = "col-xs-12 removePadding"><a href = "#Favourites_section" data-toggle = "tab" ng-click = displayFav()>Favourites</a></li>
+      </ul>
+      <div class = "tab-content">
+      <div id = "showMe" class = "animate-slide left" ng-hide = slidingBack>
+         <div class = "tab-pane fade in active" id = "Users">
+
+            <div id = "page_progress" class = "progress" ng-show = showProgress style = "margin-top:16em;">
+               <div class = "progress-bar progress-bar-striped active" role = "progressbar" aria-valuemin="0" aria-valuemax="100" style = "width:50%">
+               </div>
+            </div>
+            <div id = "makeIt" ng-show = showTables >
+               <div class = "table-responsive table-condensed">
+                  <br>
+                  <table class="table table-hover">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th>Profile photo</th>
+                           <th>Name</th>
+                           <th>Favourite</th>
+                           <th>Detail</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr ng-repeat = "request in id">
+                           <td>{{$index+1}}</td>
+                           <td><a href ="{{request.picture.data.url}}" target  = \'_blank\'><img ng-src = "{{request.picture.data.url}}" class="img-circle" height = "50px" width = "50px"></a></td>
+                           <td>{{request.name}}</td>
+                           <td class= "col-xs-push-1" ><button id ="{{request.id}}" class="btn btn-default" type="button" ng-click = findFavourites(request)><i ng-class="{'glyphicon glyphicon-star-empty': !mentionFav(request), 'glyphicon glyphicon-star':mentionFav(request)}" id = "glyphiconStar"></i></button></td>
+                           <td class = "col-xs-push-1"><button id = detailsButton class="btn btn-default" type="button" ng-click = findDetails(request)><i class=" glyphicon glyphicon-chevron-right" id = "glyphiconDetails"></i></button></td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+
+               <div class="row">
+                  <span class="col-xs-6">
+                     <div class="pull-right"><button class="btn btn-default" type="button" ng-click = previousUsers() ng-show = prevButton>Previous</button></div>
+                  </span>
+                  <span class="col-xs-6">
+                     <div class="pull-left" > <button class="btn btn-default" type="button" ng-click = nextUsers() ng-show = nextButton>Next</button></div>
+                  </span>
+               </div>
+
+            </div>
+         </div>
+         <div class = "tab-pane fade" id = "Favourites_section" ng-show = showFavourites>
+           <br>
+            <table class="table table-hover table-responsive table-condensed" id="hideIt">
+               <thead>
+                  <tr>
+                     <th>#</th>
+                     <th>Profile photo</th>
+                     <th>Name</th>
+                     <th>Type</th>
+                     <th>Favourite</th>
+                     <th>Detail</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr ng-repeat = "star in storedFav">
+                     <td>{{$index+1}}</td>
+                     <td><a href ="{{star.picture.data.url}}" target  = \'_blank\'><img ng-src = "{{star.picture.data.url}}" class="img-circle" height = "50px" width = "50px"></a></td>
+                     <td>{{star.name}}</td>
+                     <td>{{star.fav_type}}</td>
+                     <td><button class="btn btn-default" type="button" ng-click = findDelete(star)><i class=" glyphicon glyphicon-trash"></i></button></td>
+                     <td><button class="btn btn-default" type="button" ng-click = findDetails(star)><i class=" glyphicon glyphicon-chevron-right"></i></button></td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+
+         <div id = "noShow" class = "animate-slide right" ng-hide = slidingWindow>
+            <div id = "albumDiv" ng-show = showAlbums>
+
+               <div class = "row" style ="margin-top: 1.5em;">
+                  <div class = "col">
+                     <div class="pull-left" style="margin-left: 1em;"> <button class="btn btn-default"type="button" ng-click = pressBack()><i class=" glyphicon glyphicon-chevron-left"></i>Back</button></div>
+                     <div class="pull-right" style = "width:4em; height:3em; margin-left: 2em;"><button class="btn btn-default"type="button" ng-click = facebookPost() style = "margin-right: 1em;margin-left: -3em; width:4em;"><input type="image" src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" style = "height:2em; width:2em;"></button></div>
+                     <div class="pull-right" style = "margin-right: 2em;"><button class="btn btn-default" type="button" ng-click = findFavourites(current1)><i ng-class="{'glyphicon glyphicon-star-empty': !mentionFav(current1), 'glyphicon glyphicon-star':mentionFav(current1)}" ></i></button></div>
+                  </div>
+               </div>
+
+               <div class = "row" style = "margin-top: 2em;">
+                  <div class = "col-sm-6">
+                     <div class = "panel panel-default" id = "printAlbums" style="margin-right: 2em;">
+                        <div class = "panel-heading">Albums</div>
+                        <br>
+                        <div class = "panel-body">
+
+                           <div class = "progress" ng-show = "albProgress">
+                              <div class = "progress-bar progress-bar-striped active" role = "progressbar" aria-valuemin="0" aria-valuemax="100" style = "width:50%">
+                              </div>
+                           </div>
+
+                           <div class = "panel-body panel panel-warning" ng-show = "noPic">{{message}}</div>
+                           <div class = "panel-group" id = "accordion" ng-show = isPicture>
+                              <div class = "panel panel-default" ng-repeat="printid in album.slice(0,1)">
+                                 <div class = "panel-heading"><a href = "#{{printid.id}}" data-parent = "#accordion" data-toggle="collapse">{{printid.name}}</a></div>
+                                 <div id = "{{printid.id}}" class = "collapse in">
+                                    <div class = "panel-body" ng-repeat = " printid in firstAlbum.photos.data"><img ng-src="https://graph.facebook.com/v2.8/{{printid.id}}/picture?type(large)&access_token=EAAKpV72d3DkBAD4ZCfVmW03RR3nUzk6pZCNumAEhZAZBpws6N7Q6KtIc9WgZBtYNb8a8bevVsLWMtrwNouoSCzaqyKedLvewL3Mz43ZBZBu3gpqoZBYIkpsNOD1pDh7DTfZCIuuKn92r86xQaN8tacHVqJyAZAa4ThJTkZD" class="img-responsive img-rounded"></div>
+                                 </div>
+                              </div>
+                              <div class = "panel panel-default" ng-repeat = "printid in album.slice(1,album.length)">
+                                 <div class = "panel-heading" ><a href = "#{{printid.id}}" data-parent = "#accordion" data-toggle="collapse">{{printid.name}}</a></div>
+                                 <div id = "{{printid.id}}" class = "collapse">
+                                    <div class = "panel-body" ng-repeat = "printpic in printid.photos.data" ><img ng-src="https://graph.facebook.com/v2.8/{{printpic.id}}/picture?type(large)&access_token=EAAKpV72d3DkBAD4ZCfVmW03RR3nUzk6pZCNumAEhZAZBpws6N7Q6KtIc9WgZBtYNb8a8bevVsLWMtrwNouoSCzaqyKedLvewL3Mz43ZBZBu3gpqoZBYIkpsNOD1pDh7DTfZCIuuKn92r86xQaN8tacHVqJyAZAa4ThJTkZD" class="img-responsive img-rounded"></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class = "col-sm-6">
+                     <div class = "panel panel-default" id = "printPosts" style="margin-right: 2em;">
+                        <div class = "panel-heading">Posts</div>
+                        <br>
+
+                        <div class = "progress" id="postProgress" ng-show = poProgress>
+                           <div class = "progress-bar progress-bar-striped active" role = "progressbar"  style = "width:50%">
+                           </div>
+                           </div>
+
+                        <div class = "panel-body">
+                           <div class = "panel-body panel panel-warning" ng-show = "noPost">{{postMessage}}</div>
+                           <div class = "panel panel-default"ng-repeat = "postData in post" ng-show = "isPost">
+                              <img ng-src = "{{current2.picture.data.url}}" height = "40px" width = "40px" style = "margin-left: 1em;margin-top: 1em;">
+                              <div style = "display: inline;"><b>{{current2.name}}</b></div>
+                              <div style = "margin-left: 4em; margin-top: -1.5em; color:grey">{{postData.created_time}}</div>
+                              <div class = "panel-body">{{postData.message}}</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
